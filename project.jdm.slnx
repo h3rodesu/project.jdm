@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="project.jdm/project.jdm.vcxproj" Id="0bb6c6bd-f649-4396-803c-9ecddadcccca" />
+</Solution>
