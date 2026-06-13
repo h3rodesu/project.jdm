@@ -2,33 +2,31 @@
 #include <iomanip>
 #include<string>
 #include<vector>
+#include<memory>
+#include<list>
+#include <algorithm>
 using namespace std;
-void dvig(int power) {
-	;
-}
-
-class car {
+class Car {
 private:
 	string carName;
 	string carBrand;
 	bool hasnewwheels = false;
 	int ls;
-	int kg;
+	int weight;
 	int wheel;
+	string engine;
 public:
-	car(string name, string brand, int power, int weight,int zacep) {
-		carName = name;
-		carBrand = brand;
-		ls = power;
-		kg = weight;
-	 wheel=zacep;
+	Car(string name, string brand, int power, int kg, int zacep, string dvig)
+		:carBrand(brand), carName(name), engine(dvig), ls(power), weight(kg), wheel(zacep) {
 	}
-	void show() {
-		std::cout << "Модель:" << carName << "\nМарка:" << carBrand << "\nМощность:" << ls << " Лошадиных сил" << "\nВес:" << kg << " Килограмм" <<"\nЗацеп"<<wheel << endl;
+
+	virtual void ShowCar() {
+		cout << " Бренд " << carBrand << " Машина " << carName << " Лошадиные силы: " << ls << endl;
+		cout << " Двигатель: " << engine << " Вес: " << weight << "Зацеп колёс: " << wheel << endl;
 	}
-	void setLs(int value = 100) {
-		ls = ls + value;
-		kg = kg + value;
+
+	void setLs(int nls) {
+		ls = nls;
 	}
 	int getls() {
 		return ls;
@@ -37,450 +35,229 @@ public:
 		return carName;
 	}
 	int getkg() {
-		return kg;
+		return weight;
 	}
-	int setwheel(int value = 100) {
-		int temp = 100-wheel/2;
-		wheel = temp+wheel;	
+	int getwheel() {
 		return wheel;
 	}
-	int getwheel(){
-		return wheel;
-	}
-	bool getwheelstatus() {
-		return hasnewwheels;
-	}
-	bool setwhellstatus() {
-		return hasnewwheels = true;
-	}
+	virtual ~Car() {}
 };
-class Nissan : public car {
+using CarPtr = shared_ptr<Car>;
+class Nissan : public Car {
 public:
-	Nissan(string carName, string carBrand, int ls, int weight,int zacep)
-		:car(carName,carBrand,ls,weight,zacep) {
-//Здесь класс car вносит данные в свои переменные
-}
+	Nissan(string carName, string carBrand, int power, int kg, int zacep, string dvig)
+		:Car(carName, carBrand, power, kg, zacep, dvig) {
+		//Здесь класс car вносит данные в свои переменные
+	}
+	~Nissan() {}
+	using NissanPtr = shared_ptr<Nissan>;
 };
-class Toyota : public car {
+class Toyota : public Car {
 public:
-	Toyota(string carName, string carBrand, int ls, int weight,int zacep)
-		:car(carName, carBrand, ls, weight,zacep) {
+	Toyota(string carName, string carBrand, int power, int kg, int zacep, string dvig)
+		:Car(carName, carBrand, power, kg, zacep, dvig) {
 
 	}
+	~Toyota() {}
+	using ToyotaPtr = shared_ptr<Toyota>;
 };
-class doublyListNode {
+
+class Mitsubishi : public Car {
 public:
-	struct Node {
-		car* carptr;
-		Node* next;
-		Node* prev;
-		Node(car* machine) : carptr(machine), next(nullptr), prev(nullptr) {}
-	};
-public:
-	Node* head;
-	Node* tail;
-	doublyListNode() :head(nullptr), tail(nullptr) {}
-	void insertAtEnd(car* machine) {
-		Node* newNode = new Node(machine);
-		if (head==nullptr) {
-			head = newNode;
-			tail = newNode;
-		}
-		else {
-				tail->next = newNode;
-			newNode->prev = tail;
-			tail = newNode;
-		}
+	Mitsubishi(string carName, string carBrand, int power, int kg, int zacep, string dvig)
+		:Car(carName, carBrand, power, kg, zacep, dvig) {
 	}
-	void insertAtHead(car* machine) {
-		Node* newNode = new Node(machine);
-		if (head == nullptr) {
-			head = newNode;
-		}
-		else {
-			newNode->next = head;
-			head->prev = newNode;
-			head = newNode;
-		}
-	}
-	void printGarage() {
-		Node* current = head;
-		while (current != nullptr) {
-			current->carptr->show();
-			std::cout << "--------------------------" << endl;
-			current = current->next;
-		}
-	}
-	void leader() {
-		Node* current=head;
-		Node* fastestNode = head;
-		while (current == nullptr) {
-			std::cout << "Машина не выбрана" << endl;
-			return;
-		}
-		while(current!=nullptr){
-			if (current->carptr->getls() > fastestNode->carptr->getls()) {
-				fastestNode=current;
-			}
-			current = current->next;
-		}
-		std::cout << "Самая мощная машина" << fastestNode->carptr->getname();
-
-	}
-	void lightest() {
-		Node* current = head;
-		Node* light = head;
-		while (current == nullptr) {
-			std::cout << "Машина не выбрана" << endl;
-			return;
-		}
-		while (current != nullptr) {
-			if (current->carptr->getkg() < light->carptr->getkg()) {
-				light = current;
-			}
-			current = current->next;
-		}
-		std::cout << "Самая легкая машина: " << light->carptr->getname() << endl;
-	}
-
-	Node* getCarNode(int choice) {
-		Node* current = head;
-		int count = 1;
-		while (current != nullptr) {
-			if (count == choice) {
-				return current;
-		}
-			count++;
-			current = current->next;
-		}
-
-	}
+	~Mitsubishi() {}
 };
-struct Part {//"Коробка" с грузом (деталями)
+using MitPtr = shared_ptr<Mitsubishi>;
+
+class Shop {
+private:
 	string partName;
-	int partCost;
-	int partBoost;
-	Part(string name, int cost, int bonus) : partName(name), partCost(cost), partBoost(bonus) {}
+	int partHar;
+	int partPrice;
+public:
+	Shop(string Pname, int har, int price) : partName(Pname), partHar(har), partPrice(price) {}
+
+	void ShowShop() {
+		cout << "Деталь: " << partName << " Характеристика: " << partHar << " Цена " << partPrice;
+		cout << endl;
+	}
+	int gethar() {
+		return partHar;
+	}
+	~Shop() {}
 };
-	class tuningShop {//Класс магазина
-	private:
-		struct shopNode {
-			shopNode* next;
-			shopNode* prev;
-			Part* partptr;
-			shopNode(Part* ptr) : partptr(ptr), next(nullptr),prev(nullptr) {}
-		};
-	public:
-		shopNode* head = nullptr;
+void ShowMyCars(const vector<CarPtr>& gar) {//Ампераснд и  const чтобы не копировать вектор
+	for (auto it = gar.begin(); it != gar.end(); it++) {
+		(*it)->ShowCar();
+		cout << endl;
+	}
+}
+using ShopPtr = shared_ptr<Shop>;
 
-//Функция добавления запчастей в конец списка(с конца списка)
-	
-		void addToEnd(Part*detail) {
-			shopNode* newNode = new shopNode(detail);//new т.к. создается потеницально новый объект, 
-			//detail-временая переменная для пердачи данных в partptr;
-			shopNode* current = head;
-				if (head == nullptr) {
-					head = newNode;
-				}
-				else {
-					while (current->next != nullptr) {
-						current=current->next;
-					}
-						current->next=newNode;
-						newNode->prev = current;
-					}
-			}
+struct racer {
+public:
+	CarPtr carptr;
+	int power;
+};
 
-		//Функция для вывода магазина
-		void showShop() { 
-			shopNode* current = head;
-			int index = 1;
-			if (head == nullptr) {
-				std::cout << "На полках пусто" << endl;
-				return;
-			}
-			while (current!= nullptr) {
-				std::cout << index << "." << "Деталь:" << current->partptr->partName << " Стоимость: " << current->partptr->partCost << "Эффект от детали:" << current->partptr->partBoost << endl;
-				std::cout << endl;	
-				std::cout << setfill('-') << setw(20)<<endl;
-				current = current->next;
-				index++;
-			}
-		}
+enum Events {
+	Dead,
+	low,
+	crash
+};
+void LaurelEvents() {
+	Events event = static_cast<Events>(rand() % 3);
+	switch (event) {
+	case Dead: {
+		cout << "Мимо вас проонесся полумертвый Лаурель, чуть не въехал в вас" << endl;
+		break;
+	}
+	case low: {
+		cout << "Мимо вас проонесся черный блестящий  Лаурель,говорят вчера намотался на столб" << endl;
+		break;
+	}
+	case crash: {
+		cout << "Мимо вас проонесся слишком низкий Лаурель ,улетел в кусты" << endl;
+		break;
+	}
+	}
+}
 
-		//Сверение выбора игрока с деталью из магазина 
-
-		Part*getPartPtr(int menuIndex) {
-			int count = 1;
-			shopNode* current = head;//Имеет тип shopNode
-			while (current	!= nullptr) {
-				if (menuIndex == count) {
-					return current->partptr;
-				}
-				count++;
-				current = current->next;
-		}
-			return nullptr;
-		}
-	};
 int main() {
 	srand(time(0));
 	setlocale(LC_ALL, "rus");
-	doublyListNode::Node* activeCarNode = nullptr;
-	Nissan silvia("Silvia s13", "Nissan", 240, 1110, 30);
-	Nissan skyline("Skyline", "Nissan", 240, 1430, 35);
-	Toyota mark("Mark II", "Toyota", 180, 1450, 70);
-	doublyListNode mygarage;
-	mygarage.insertAtEnd(&silvia);
-	mygarage.insertAtEnd(&skyline);
-	mygarage.insertAtHead(&mark);
-	mygarage.printGarage();
+
+
+	vector<CarPtr>mygarrage;
+
+	vector<CarPtr>CarShop;
+	CarShop.push_back(make_shared<Toyota>("Mark II", "Toyota", 180, 1450, 70, "1JZ"));
+	CarShop.push_back(make_shared<Nissan>("Silvia s13", "Nissan", 230, 1110, 30, "RB26DET"));
+	CarShop.push_back(make_shared<Toyota>("Chaiser", "Toyota", 200, 1350, 80, "1.5JZ"));
+	CarShop.push_back(make_shared<Nissan>("Skyline R32", "Nissan", 240, 1430, 80, "RB28DET"));
+	CarShop.push_back(make_shared<Mitsubishi>("Lancer Evolution", "Mitsubishi", 220, 1410, 100, "4G63T MIVEC"));
 	int choice = 0;
-	bool shop = true;
-	while (shop) {
-		std::cout << "Выберете машину 1-3 или выйдите-0" << endl;
-		cin >> choice;
-		if (choice == 1) {
-		 activeCarNode = mygarage.getCarNode(choice);
-			mark.show();
-			std::cout << endl;
-			int swap = 0;
-			int limit = 280;
-			if (mark.getls() < limit) {
-				std::cout << "Достпуен свап на 2jz.Замена?" << endl;
-				cin >> swap;
-				if (swap == 1) {
-					mark.setLs();
-					std::cout << "Двигатель свапнут!Текущие характеристики:" << endl;
-					mark.show();
-				}
-				else if (choice == 2 || mark.getls() > limit || mark.getls() == limit) {
-
-				}
-				if (mark.getwheelstatus() == false) {
-					int wheelchoice = 0;
-					int wheellimit = 100;
-					std::cout << "Доступна замены резины на резину с большим зацепом.Заменить?" << endl;
-					cin >> wheelchoice;
-					if (wheelchoice == 1) {
-						mark.setwheel();
-						mark.setwhellstatus();
-						std::cout << "Резина заменена!Текущие характеристики:" << endl;
-						mark.show();
-					}
-					else if (wheelchoice == 2 || mark.setwheel() > limit || mark.setwheel() == limit) {
-
-					}
-				}
+	cout << "Войти в магазин?" << endl;
+	cin >> choice;
+	if (choice == 1) {
+		bool shopCar = true;
+		while (shopCar) {
+			cout << "Добро пожаловать в магазин" << endl;
+			cout << "Доступные авто:" << endl;
+			cout << endl;
+			for (auto it = CarShop.begin(); it != CarShop.end(); it++) {
+				(*it)->ShowCar();
+				cout << endl;
 			}
-		}
-		else if (choice == 2) {
-			activeCarNode = mygarage.getCarNode(choice);
-			silvia.show();
-			int limit = 310;
-			int swap = 0;
-			if (silvia.getls() < limit) {
-				std::cout << "Доступен свап на SR20DET.Замена?" << endl;
-				cin >> swap;
-				if (swap == 1) {
-					silvia.setLs();
-					std::cout << "Замена проведена успешно!Текущие характеристики:" << endl;
-					silvia.show();
-				}
-				else if (swap == 2 || silvia.getls() > limit) {
-
-				}
-				int wheelchoice = 0;
-				std::cout << "Доступна замена резины на резину с большим зацепом!Замена?" << endl;
-				cin >> wheelchoice;
-				if (wheelchoice == 1 && silvia.getwheelstatus() == false) {
-					silvia.setwheel();
-					silvia.setwhellstatus();
-					std::cout << "Замена прошла успешно!Текущий статус:" << endl;
-					silvia.show();
-				}
-				else if (wheelchoice == 2 || silvia.getwheelstatus() == true) {
-
-				}
+			int carChoice = 0;
+			cout << "Выберите авто" << endl;
+			std::cin >> carChoice;
+			if (carChoice == 0) {
+				cout << "Выход из магазинга" << endl;
+				continue;
 			}
-		}
-		else if (choice == 3) {
-			activeCarNode = mygarage.getCarNode(choice);
-			skyline.show();
-			int limit = 340;
-			int swap = 0;
-			if (skyline.getls() < limit) {
-				std::cout << "Доступен свап на RB26DETT.Замена?" << endl;
-				cin >> swap;
-				if (swap == 1) {
-					skyline.setLs();
-					std::cout << "Текущие характеристики:" << endl;
-					skyline.show();
-				}
+			if (carChoice < 1 || carChoice>CarShop.size()) {
+				cout << "Некорректный выбор,вы не в себе?" << endl;
+				continue;
 			}
-			else if (swap == 2 || skyline.getls() > limit || skyline.getls() == limit) {
-
-			}
-			int wheellimit = 100;
-			int wheelchoice = 0;
-			if (skyline.getwheel() < wheellimit && skyline.getwheelstatus() == false) {
-				std::cout << "Доступна замена шин на шины с большим зацепом.Замена?" << endl;
-				cin >> wheelchoice;
-				if (wheelchoice == 1) {
-					skyline.setwheel();
-					skyline.setwhellstatus();
-					std::cout << "Замена прошла успешна!Текущие характеристики:" << endl;
-					skyline.show();
-				}
-				else if (wheelchoice == 2 || skyline.getwheel() > wheellimit || skyline.getwheel() == wheellimit) {
-
-				}
-			}
-		}
-		else if (choice == 0) {
-			shop = false;
+			auto vybor = CarShop[carChoice - 1];
+			cout << "Поздравляем с покупкой!" << endl;
+			mygarrage.push_back(vybor);
+			vybor->ShowCar();
+			cout << endl;
+			shopCar = false;
 		}
 	}
+	else {
 
-	Part turbine("Турбина", 30000, 70);
-	Part intercooler("Интеркуллер", 25000, 50);
-	Part spoiler("Спойлер", 8000, 0);
-
-	tuningShop magaz;
-	magaz.addToEnd(&turbine);
-	magaz.addToEnd(&intercooler);
-	magaz.addToEnd(&spoiler);
-	int choicenext = 0;
-	std::cout << "Войти в магазин?" << endl;
-	cin>> choicenext;
-	if (choicenext == 1) {
-		magaz.showShop();
+	}
+	int garchoice = 0;
+	cout << "Показать гараж-1" << endl;
+	cin >> garchoice;
+	if (garchoice == 1) {
+		ShowMyCars(mygarrage);
+	}
+	vector<ShopPtr>TunShop;
+	TunShop.push_back(make_shared<Shop>("Turbine", 70, 30000));
+	TunShop.push_back(make_shared<Shop>("Intercooler", 50, 17000));
+	TunShop.push_back(make_shared<Shop>("Nitro", 100, 50000));
+	int tshopchoice = 0;
+	cout << "Войти в тюнинг-ателье:1" << endl;
+	cin >> tshopchoice;
+	if (tshopchoice == 1) {
+		cout << "Ассортимент" << endl;
+		for (auto it = TunShop.begin(); it != TunShop.end(); it++) {
+			(*it)->ShowShop();
+		}
 		int tunchoice = 0;
-		std::cout << "Введите номер детали для покупки" << endl;
+		cout << "Выберите деталь для покупки:" << endl;
 		cin >> tunchoice;
-		Part* chosenPart = magaz.getPartPtr(tunchoice);
-		if (chosenPart != nullptr) {
-			activeCarNode->carptr->setLs(chosenPart->partBoost);
-			std::cout << "Деталь успешно установлена" << endl;
-			std::cout << "Текущие характеристики:" << endl;
-			activeCarNode->carptr->show();
+		auto realchoice = TunShop[tunchoice - 1];
+		if (realchoice != nullptr) {
+			int newls = realchoice->gethar() + mygarrage[0]->getls();
+			mygarrage[0]->setLs(newls);
+		}
+	}
+	cout << "Деталь уставновлена успешно" << endl;
+	ShowMyCars(mygarrage);
+	int racechoice;
+	cout << "Устроить гонку?" << endl;
+	cin >> racechoice;
+	if (racechoice == 1) {
+		auto fbot = CarShop[rand() % CarShop.size()];
+		auto sbot = CarShop[rand() % CarShop.size()];
+		int playerchoice;
+		cout << "Выберите авто" << endl;
+		ShowMyCars(mygarrage);
+		cin >> playerchoice;
+		auto playercar = mygarrage[playerchoice - 1];
+		cout << "Выбранное авто:" << playercar->getname() << endl;
+		int trassa = (rand() % 2) + 1;
+		int fbotpower = 0;
+		int sbotpower = 0;
+		int PlayerPower = 0;
+		switch (trassa) {
+		case 1: {	
+			cout << "Спуск в горах,на старте стоят" << playercar->getname() <<
+				' ' << fbot->getname() << " и " << sbot->getname() << endl;
+			PlayerPower = playercar->getls() + playercar->getwheel();
+			fbotpower = fbot->getls() + fbot->getwheel();
+			sbotpower = sbot->getls() + sbot->getwheel();
+			break;
+		}
+		case 2: {
+			cout << "На светофоре стоят" << playercar->getname() <<
+				' ' << fbot->getname() << " и " << sbot->getname() << endl;
+			PlayerPower = playercar->getls() - (playercar->getkg() / 10);
+			fbotpower = fbot->getls() - (fbot->getkg() / 10);
+			sbotpower = sbot->getls() - (sbot->getkg() / 10);
+			break;
+		}
+		}
+		racer funit = { fbot, fbotpower };
+		racer sunit{ sbot,sbotpower };
+		racer player{ playercar,PlayerPower };
+		int max = 0;
+		string winner = " ";
+		if (fbotpower > sbotpower) {
+			max = fbotpower;
+			winner = fbot->getname();
 		}
 		else {
-			std::cout << "Такая деталь отсутсвует" << endl;
+			max = sbotpower;
+			winner = sbot->getname();
 		}
+		if (max < PlayerPower) {
+			winner = playercar->getname();
+		}
+		cout << "Победитель: " << winner << endl;
+		LaurelEvents();
+
+		// auto maxval = max(funit, sunit);
+		//cout << maxval.carptr->getname() << endl;
 	}
-	int trassa = rand() % 3 + 1;
-	int race = 0;
-	std::cout << "Устроить гонку?" << endl;
-	cin >> race;
-	if (race == 1) {
-		car* racerone = nullptr;
-		car* racertwo = nullptr;
-		car* racerthree = nullptr;
-		int max = 0;
-		double maxf = 0;
-		car* winner;
-		int racechoice = 0;
-		std::cout << "Кто на первой полосе?" << endl;
-		cin >> racechoice;
-		if (racechoice == 1) {
-			racerone = &mark;
-		}
-		else if (racechoice == 2) {
-			racerone = &silvia;
-		}
-		else if (racechoice == 3) {
-			racerone = &skyline;
-		}
-		int racechoicesec = 0;
-		std::cout << "Кто на второй полосе?" << endl;
-		cin >> racechoicesec;
-		if (racechoicesec == 1) {
-			racertwo = &mark;
-		}
-		else if (racechoicesec == 2) {
-			racertwo = &silvia;
-		}
-		else if (racechoicesec == 3) {
-			racertwo = &skyline;
-		}
-		int racerchoicethree = 0;
-		std::cout << "Кто на третьей полосе?" << endl;
-		cin >> racerchoicethree;
-		if (racerchoicethree == 1) {
-			racerthree = &mark;
-		}
-		else if (racerchoicethree == 2) {
-			racerthree = &silvia;
-		}
-		else if (racerchoicethree == 3) {
-			racerthree = &skyline;
-		}
-		if (trassa == 1 ) {
-			std::cout << "На светофоре встали" << racerone->getname() << " , " << racertwo->getname() << "и" << racerthree->getname() << endl;
-			if ((double)racerone->getls() / (double)racerone->getkg() > (double)racertwo->getls() / (double)racertwo->getkg()) {
-				maxf = (double)racerone->getls() / (double)racerone->getkg();
-				winner = racerone;
-			}
-			else {
-				maxf = (double)racertwo->getls() / (double)racertwo->getkg();
-				winner = racertwo;
-			}
-			if (maxf < (double)racerthree->getls() / (double)racerthree->getkg()) {
-				winner = racerthree;
-			}
-			else {
-				std::cout << "Победитель " << winner->getname() << endl;
-			}
-		}
-		else if (trassa == 2) {
-			std::cout << "На спуске с горы стоят:" << racerone->getname() << " , " << racertwo->getname() << "и" << racerthree->getname() << endl;
-			if (racerone->getls() < racertwo->getls()) {
-				max = racerone->getls();
-				winner = racerone;
-			}
-			else {
-				max = racertwo->getls();
-				winner = racertwo;
-			}
-			if (max < racerthree->getls()) {
-				std::cout << "Победитель " << winner->getname() << endl;
-			}
-			else {
-				std::cout << "Победитель " << racerthree->getname() << endl;
-			}
-			vector<vector<string>>laurel_events = {
-						{"полумертвый ","Лаурель ","чуть не въехал"},
-						{"черный блестящий ","Лаурель ",",говорят вчера намотался на столб"},
-						{"слишком низкий ","Лаурель ",",улетел в кусты"}
-			};
-			int random_laurel = rand() % 3;
-			std::cout << "Во время гонки мимо прнесся "
-				<< laurel_events[random_laurel][0]
-				<< laurel_events[random_laurel][1]
-				<< laurel_events[random_laurel][2]<< endl;
-		}
-		else if (trassa == 3) {
-			std::cout << "Гонка по трассе после дождя,на старте стоят: " << racerone->getname() << " , " << racertwo->getname() << "и" << racerthree->getname() << endl;
-			if (racerone->getls() * racerone->getwheel() > racertwo->getls() * racertwo->getwheel()) {
-				max = racerone->getls() * racerone->getwheel();
-				winner = racerone;
-			}
-			else {
-				max = racertwo->getls() * racertwo->getwheel();
-				winner = racertwo;
-			}
-			if (max > racerthree->getls() * racerthree->getwheel()) {
-				std::cout << "Победил " << winner->getname() << endl;
-			}
-			else {
-				std::cout << "Победил" << racerthree->getname() << endl;
-			}
-		}
-	}
-	mygarage.leader();
-	std::cout << endl;
-	mygarage.lightest();
 	system("Pause");
 	return 0;
 }
